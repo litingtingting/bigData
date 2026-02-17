@@ -1,0 +1,106 @@
+# 现金种子spark应用
+nohup  $SPARK_HOME/bin/spark-submit --master "local[4]"   \
+--jars  $SPARK_HOME/external/kafka-0-8-assembly/target/spark-streaming-kafka-0-8-assembly_2.11-2.2.3-SNAPSHOT.jar  \
+--packages org.mongodb.spark:mongo-spark-connector_2.11:2.2.3  \
+--total-executor-cores  1     \
+--py-files $SPARK_PY_PATH/../bigdata.zip   \
+$SPARK_PY_PATH/index.py  cashseed  actual  > /root/apps/batch/logs/submit/cashseed-actual  &
+
+#分享数据统计 
+/usr/local/bin/python3 /root/apps/batch/bigdata/console.py SharePage stat
+
+
+#开宝箱相关统计
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox uvAward >> /opt/logs/stat/openbox.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox newUvAward >> /opt/logs/stat/openbox.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox mCenterPageUv >> /opt/logs/stat/openbox.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox newShareBox >> /opt/logs/stat/openbox.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox reloadBoxData >> /opt/logs/stat/openbox.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py openBox continueOpenBox >> /opt/logs/stat/openbox.log 2>&1
+
+#share
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py share source >> /opt/logs/stat/share.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py share source share=1 >> /opt/logs/stat/share.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py share sourceByPd >> /opt/logs/stat/share.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py share sourceByPd share=1 >> /opt/logs/stat/share.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py share newUv >> /opt/logs/stat/share.log 2>&1
+
+#news 
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll pageStat >> /opt/logs/stat/NewsAll.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll shareStat >> /opt/logs/stat/NewsAll.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll iconStat >> /opt/logs/stat/NewsAll.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll collectStat >> /opt/logs/stat/NewsAll.log 2>&1
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll newsUvStat >> /opt/logs/stat/NewsAll.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll newsPvStat >> /opt/logs/stat/NewsAll.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAll eventAdStat >> /opt/logs/stat/NewsAll.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAllCt pageStat >> /opt/logs/stat/NewsAllCt.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsAllCt shareStat >> /opt/logs/stat/NewsAllCt.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsCat pageStat >> /opt/logs/stat/NewsCat.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsCat shareStat >> /opt/logs/stat/NewsCat.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsCatCt pageStat >> /opt/logs/stat/NewsCatCt.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsCatCt shareStat >> /opt/logs/stat/NewsCatCt.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPos PosStat >> /opt/logs/stat/NewsPos.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPtab pageStat >> /opt/logs/stat/NewsPtab.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPtab shareStat >> /opt/logs/stat/NewsPtab.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPtab collectStat >> /opt/logs/stat/NewsPtab.log 2>&1
+
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPtabCt pageStat >> /opt/logs/stat/NewsPtabCt.log 2>&1
+* * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsPtabCt shareStat >> /opt/logs/stat/NewsPtabCt.log 2>&1
+
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsUser pageStat >> /opt/logs/stat/NewsUser.log 2>&1
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsUser shareStat >> /opt/logs/stat/NewsUser.log 2>&1
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py NewsUser collectStat >> /opt/logs/stat/NewsUser.log 2>&1
+
+####小猪APP统计
+#广告资源位统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.AdPos Stat >> /opt/logs/stat/xz.log 2>&1
+#app各种事件上报统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.AppEvent Stat >> /opt/logs/stat/xz.log 2>&1
+#签到统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Checkin Stat >> /opt/logs/stat/xz.log 2>&1
+#消息统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Notify Stat >> /opt/logs/stat/xz.log 2>&1
+#道具卡统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Props Stat >> /opt/logs/stat/xz.log 2>&1
+#道具卡发放金豆统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Props Goldbean >> /opt/logs/stat/xz.log 2>&1
+#刷红包统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Redbag Stat >> /opt/logs/stat/xz.log 2>&1
+#注册人数统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Register Stat >> /opt/logs/stat/xz.log 2>&1
+#分享统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Share Stat >> /opt/logs/stat/xz.log 2>&1
+#新增分享人数统计
+*/30 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Share newUv >> /opt/logs/stat/xz.log 2>&1
+#师徒相关统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.St Stat >> /opt/logs/stat/xz.log 2>&1
+#师徒批次奖励统计
+*/10 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Batch Stat >> /opt/logs/stat/xz.log 2>&1
+#每日邀请好友TOP20统计
+*/50 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Top apprentice >> /opt/logs/stat/xz.log 2>&1
+
+#双旦活动奖励发放量统计
+*/20 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Sd Reward >> /opt/logs/stat/xz.log 2>&1
+#双旦活动幸运值人数分布统计
+*/20 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Sd Lucky >> /opt/logs/stat/xz.log 2>&1
+
+#通用数据统计 - UVPV
+*/20 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py common.Uvpv Stat >> /opt/logs/stat/common.log 2>&1
+
+#组团任务统计 - UVPV
+*/40 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Group pu >> /opt/logs/stat/xz.log 2>&1
+#组团任务统计 - 组团数据
+*/40 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Group task >> /opt/logs/stat/xz.log 2>&1
+
+#打豆豆统计 - PVUV
+*/40 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Ddd pu >> /opt/logs/stat/xz.log 2>&1
+#打豆豆统计 - 打豆豆数据
+*/40 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py xz.Ddd beat >> /opt/logs/stat/xz.log 2>&1
+
+#小脉生活 - 推荐统计
+*/30 * * * * export SPARK_PY_PATH=/root/apps/batch/bigdata && /usr/local/bin/python3 $SPARK_PY_PATH/console.py pulse.Material Event >> /opt/logs/stat/pulse.log 2>&1

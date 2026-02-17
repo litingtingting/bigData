@@ -1,0 +1,30 @@
+1.安装redis扩展
+$ pip3 install redis
+
+2.安装mysql.connector扩展
+$ sudo apt-get install python3-mysql.connector
+或者
+$ sudo pip3.6 install mysql-connector-python
+# http://blog.topspeedsnail.com/archives/6018
+# Centos
+$ /usr/local/python3.5/bin/python3 -m pip install mysql-connector-python
+
+3.安装kafka-python扩展
+$ sudo pip3 install kafka-python
+
+4.安装requests扩展
+$ sudo pip3 install requests
+
+5.安装confluent-kafka-python,参考： 
+https://github.com/confluentinc/confluent-kafka-python
+
+7.安装pymongo
+$ sudo python3 -m pip install pymongo
+或
+$ sudo pip3 install pymongo
+
+8.安装dateutil模块
+$ sudo python3 -m pip install python-dateutil
+
+9.安装pyssdb模块(仅支持Python:2.6,2.7,3.5,3.6)
+$ sudo python3.5 -m pip install pyssdbA
