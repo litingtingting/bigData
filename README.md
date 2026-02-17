@@ -1,34 +1,95 @@
-一、接入层：  
-由于代码和文档暂时找不到了，所以将实现的大概思路表达一下：
-前端部分：
-openresty+lua, 接口统一只有一个入口，无状态，高解耦，抽象，加密等；
+I. Access Layer Design
+Due to the loss of original code and documentation, the following outlines the core architectural concepts:
 
-接入层加密：
-1、核心参数： json格式，参数直接面象mongodb collection对象，传入表名：具体的相关数据等；
-2、对核心参数进行类似base64加密：先是按照某种规则对字符进行打乱，然后接接，
-按照自己设定的字符和数字对应表，生成相对应的一个个数字数组，再将每一个数字生成8位二进制，
-然后将整体拼接起来，重新按6位来分成一个个二进制数，再生成数字按照同样的字符数字对应表找到相对应的字符，
-再将一个个字符按顺序接接输出； 所以用户看到的是一堆乱码；
-3、再将刚刚用类base64算法生成的参数，配合时间戳，密钥,将这三个参数按照某种规则拼接起来，然后md5加密，做参数的一致性验证；
-4、利用redis做防刷；
-5、接口只做解密，rediss查重刷，以及写入kafka的动作，所以单机并发上万不是难题，
+Frontend Access:
+A stateless unified API entry is built with OpenResty and Lua, achieving high concurrency, low coupling, and abstraction. All requests are routed through a single gateway and undergo unified encryption.
 
-内部应用部分：
-供生产线内部网络使用，不同的环境和生产线（同一部门，但不同业务），做埋线：
-根据不同的语言，写了两种sdk，让他们直接下载调用即可； （直接利用kafka通信，按照约定的规范写入kafka即可）
+Access Layer Encryption Process:
 
-结论：
-1、这种实现方式：只要定好数据库存储规则，kafka写入规则即可；  
-2、有新的业务需求，只需要加两点，一个是前端埋点，第二个是统计部分加一个统计代码即可，不超过5分钟； 其他层面都不需要更改；
+Parameter Encapsulation: Core parameters are formatted as JSON, directly mapping to MongoDB collection structures, including the table name and corresponding business data.
 
-二、数据存储： 
-go 消费 kafka，将kafka的数据存入mongodb;
+Custom Base64-like Obfuscation:
 
-三、数据统计： （dataStatics文件夹）
-1、python凌晨离线统计（mongodb按日期分片，无压力），
-2、spark-streaming做实时统计， 与离线统计会进行对账；
-3、数据迁移（旧有业务），冷热数据处理；
+Characters are first rearranged according to a predefined rule.
 
-四、数据展示：  
-这个也非常简单，由于数据展示仅供内部使用，由前端开发，这边后端接口也是统一入口，直接查询mongodb(统计好的数据也会存入到mongodb中)；
+Using a custom character-to-digit mapping table, each character is converted to a digit and then expanded into an 8-bit binary representation.
+
+The entire binary string is regrouped into 6-bit chunks, each converted back to a digit, and then mapped to a character via the same table, resulting in an unreadable obfuscated string.
+
+Integrity Verification: The obfuscated parameters are concatenated with a timestamp and a secret key using a defined rule, and an MD5 hash is generated to produce a signature for tamper-proof validation.
+
+Anti-abuse Mechanism: Redis is employed to enforce rate limiting and filter duplicate requests.
+
+High-Performance Processing: The access layer only performs decryption, Redis-based deduplication, and Kafka message writing, with no complex business logic. A single node can achieve tens of thousands of QPS.
+
+Internal Service Invocation:
+For different business lines within the internal production network, multi-language SDKs (e.g., Go, Java) are provided to encapsulate Kafka interaction details. Each business line only needs to write data into Kafka according to the agreed specification, decoupling data collection from business logic.
+
+Design Advantages:
+
+High decoupling is achieved through standardized database schemas (MongoDB) and messaging protocols (Kafka).
+
+Adding a new business requires only two modifications: frontend instrumentation and an extension in the statistics module, typically taking less than five minutes, with no changes needed in other layers.
+
+II. Data Persistence
+A Kafka consumer developed in Go continuously pulls messages from the access layer, parses them, and stores the data into MongoDB. Data is sharded by date to support massive write throughput and efficient querying.
+
+III. Data Statistics (dataStatics Module)
+Offline Batch Processing: Python scripts run daily in the early morning to aggregate incremental data in MongoDB (query load is manageable due to date-based sharding).
+
+Real-time Stream Processing: Spark Streaming consumes real-time data from Kafka to compute live metrics, which are then cross-validated with offline batch results to ensure data consistency.
+
+Data Lifecycle Management: Includes migration of legacy business data, separation of hot and cold data, and archiving strategies to optimize storage and query performance.
+
+IV. Data Visualization
+As the visualization is for internal use only, the frontend directly queries MongoDB (both raw and pre-aggregated data) via a unified API. The backend interface follows the same stateless design as the access layer, merely forwarding query requests without complex business logic.
+
+----------------------------------------------------------------------------------------------------------------------
+一、接入层设计
+由于历史代码与文档缺失，以下为架构核心思路概述：
+
+前端接入：
+采用 OpenResty + Lua 构建统一的无状态 API 入口，实现高并发、低耦合与抽象封装。所有请求均通过单一网关，并统一进行加密处理。
+
+接入层加密流程：
+
+参数封装：核心参数采用 JSON 格式，直接映射 MongoDB 的集合结构，包含表名及对应业务数据。
+
+自定义类 Base64 混淆编码：
+
+按预设规则对原始字符进行重排；
+
+依据自定义字符‑数字映射表，将每个字符转换为对应数字，再扩展为 8 位二进制；
+
+将整体二进制串按 6 位重新分组，每组转换为数字后，通过映射表还原为字符，最终生成不可读的乱码串。
+
+完整性校验：将上述编码后的参数与时间戳、密钥按约定规则拼接，经 MD5 哈希生成签名，用于参数防篡改校验。
+
+防刷机制：基于 Redis 实现请求频率控制与重复请求过滤。
+
+高性能处理：接入层仅执行解密、Redis 防重校验及消息写入 Kafka，无复杂业务逻辑，单机并发能力可达万级 QPS。
+
+内部服务调用：
+面向生产网内部不同业务线，提供多语言 SDK（如 Go、Java 等），封装与 Kafka 的交互细节。各业务线只需按约定规范将数据写入 Kafka 即可，实现埋点采集与业务逻辑的解耦。
+
+设计优势：
+
+通过标准化数据库结构（MongoDB）与消息协议（Kafka），实现各模块间的高度解耦。
+
+新增业务仅需两处改动：前端埋点添加与统计模块代码扩展，平均耗时不超过 5 分钟，其余层无需变更。
+
+二、数据持久化
+使用 Go 语言开发 Kafka 消费者，实时拉取接入层写入的消息，经解析后存入 MongoDB。数据按日期分片存储，以支撑海量写入与高效查询。
+
+三、数据统计（dataStatics 模块）
+离线批量计算：每日凌晨利用 Python 脚本对 MongoDB 中的日增量数据进行聚合统计（得益于日期分片，查询压力可控）。
+
+实时流计算：采用 Spark Streaming 处理 Kafka 实时数据流，产出实时指标，并与离线统计结果进行交叉验证，确保数据一致性。
+
+数据生命周期管理：包含历史业务数据迁移、冷热数据分离与归档策略，优化存储与查询性能。
+
+四、数据展示
+由于展示端仅限内部使用，前端直接通过统一的 API 接口查询 MongoDB（包括原始数据与预计算结果）。后端接口保持与接入层相同的无状态设计，仅做数据查询转发，不包含复杂业务逻辑。
+
+
 
