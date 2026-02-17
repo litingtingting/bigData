@@ -1,0 +1,7 @@
+{
+	"log_path":"/web/log/",
+	"mongo_db_host":"127.0.0.1:27017",
+	"kafka_brokers":"10.10.51.14:19091,10.10.51.14:19092,10.10.51.14:19093",
+	"kafka_topic":"spark_entry",
+	"kafka_group":"spark_entry_group"
+}
