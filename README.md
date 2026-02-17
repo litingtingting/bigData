@@ -34,7 +34,7 @@ Adding a new business requires only two modifications: frontend instrumentation 
 II. Data Persistence
 A Kafka consumer developed in Go continuously pulls messages from the access layer, parses them, and stores the data into MongoDB. Data is sharded by date to support massive write throughput and efficient querying.
 
-III. Data Statistics (dataStatics Module)
+III. Data Statistics (dataStatistics folder)
 Offline Batch Processing: Python scripts run daily in the early morning to aggregate incremental data in MongoDB (query load is manageable due to date-based sharding).
 
 Real-time Stream Processing: Spark Streaming consumes real-time data from Kafka to compute live metrics, which are then cross-validated with offline batch results to ensure data consistency.
@@ -81,7 +81,7 @@ As the visualization layer is intended solely for internal use, the frontend que
 二、数据持久化
 使用 Go 语言开发 Kafka 消费者，实时拉取接入层写入的消息，经解析后存入 MongoDB。数据按日期分片存储，以支撑海量写入与高效查询。
 
-三、数据统计（dataStatics 模块）
+三、数据统计（dataStatistics 文件夹）
 离线批量计算：每日凌晨利用 Python 脚本对 MongoDB 中的日增量数据进行聚合统计（得益于日期分片，查询压力可控）。
 
 实时流计算：采用 Spark Streaming 处理 Kafka 实时数据流，产出实时指标，并与离线统计结果进行交叉验证，确保数据一致性。
